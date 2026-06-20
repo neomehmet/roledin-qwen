@@ -27,13 +27,13 @@ if not os.path.exists(OUTPUT_DIR):
 # =============================================================================
 # 1. GIS VERİLERİNİ OKU
 # =============================================================================
-MERKEZ_PATH = r"..\GIS\LGC_MERKEZ.shp"
-HAT_PATH = r"..\GIS\H_ENERJI_NAKIL_HATTI.shp"
-HUCRE_PATH = r"..\GIS\T_HUCRE.shp"
-BARA_PATH = r"..\GIS\T_OG_BARA.shp"
-KESICI_PATH = r"..\GIS\T_OG_KESICI.shp"
-AYIRICI_PATH = r"..\GIS\T_OG_AYIRICI.shp"
-T_OG_KABLO_BAGLANTISI_PATH = r"..\GIS\T_OG_KABLO_BAGLANTISI.shp"
+MERKEZ_PATH = r"GIS/LGC_MERKEZ.shp"
+HAT_PATH = r"GIS/H_ENERJI_NAKIL_HATTI.shp"
+HUCRE_PATH = r"GIS/T_HUCRE.shp"
+BARA_PATH = r"GIS/T_OG_BARA.shp"
+KESICI_PATH = r"GIS/T_OG_KESICI.shp"
+AYIRICI_PATH = r"GIS/T_OG_AYIRICI.shp"
+T_OG_KABLO_BAGLANTISI_PATH = r"GIS/T_OG_KABLO_BAGLANTISI.shp"
 
 print("GIS verileri okunuyor...")
 
@@ -103,17 +103,17 @@ PRECISION = 8
 for gdf in [hat_df, bara_df, baglanti_df]:
     if (gdf is None) or (gdf.empty):
         continue
-    start_series = gdf.geometry.apply(lambda g: get_point(g, 0))
-    end_series = gdf.geometry.apply(lambda g: get_point(g, -1))
+    start_series = gdf.geometry.apply(lambda g: get_point(g, 0) if g is not None and not g.is_empty else None)
+    end_series = gdf.geometry.apply(lambda g: get_point(g, -1) if g is not None and not g.is_empty else None)
 
     gdf["START_POINT"] = start_series.apply(
         lambda p: (
-            (round(p.x, PRECISION), round(p.y, PRECISION)) if not p.is_empty else None
+            (round(p.x, PRECISION), round(p.y, PRECISION)) if p is not None and not p.is_empty else None
         )
     )
     gdf["END_POINT"] = end_series.apply(
         lambda p: (
-            (round(p.x, PRECISION), round(p.y, PRECISION)) if not p.is_empty else None
+            (round(p.x, PRECISION), round(p.y, PRECISION)) if p is not None and not p.is_empty else None
         )
     )
 
@@ -122,7 +122,7 @@ for gdf in [kesici_df, ayirici_df]:
         continue
     gdf["geometry"] = gdf.geometry.apply(
         lambda p: (
-            Point(round(p.x, PRECISION), round(p.y, PRECISION)) if not p.is_empty else p
+            Point(round(p.x, PRECISION), round(p.y, PRECISION)) if p is not None and not p.is_empty else p
         )
     )
     gdf[["START_POINT", "END_POINT"]] = None
@@ -301,11 +301,23 @@ ayirici_df_processed["MERKEZ_ABB_INT_ID"] = birlesik_df_ayirici_merkez[
 ]
 ayirici_df_processed["MERKEZ_GEOMETRY"] = birlesik_df_ayirici_merkez["MERKEZ_GEOMETRY"]
 
-# Ayırıcı anahtarlama durumları Excel'e
+# Ayırıcı anahtarlama durumları Excel'e (test için varsayılan değerler)
+# Gerçek GIS verisinde ANAHTARLAM ve NORMAL_ANA kolonları yoksa varsayılan atıyoruz
+if "ANAHTARLAM" not in ayirici_df.columns:
+    ayirici_df["ANAHTARLAM"] = 1  # Varsayılan: Kapalı
+if "NORMAL_ANA" not in ayirici_df.columns:
+    ayirici_df["NORMAL_ANA"] = "KAPALI"  # Varsayılan: KAPALI
+
 ayirici_df[["ABB_INT_ID", "AYIRICI_ABB_INT_ID", "ANAHTARLAM", "NORMAL_ANA"]].to_excel(
     os.path.join(OUTPUT_DIR, "ayirici_anahtar_status.xlsx"), index=False
 )
 print("  -> ayirici_anahtar_status.xlsx kaydedildi")
+
+# Aynı varsayılan değerleri ayirici_df_processed'e de ekle
+if "ANAHTARLAM" not in ayirici_df_processed.columns:
+    ayirici_df_processed["ANAHTARLAM"] = 1
+if "NORMAL_ANA" not in ayirici_df_processed.columns:
+    ayirici_df_processed["NORMAL_ANA"] = "KAPALI"
 
 # --- Bara <-> Hücre/Merkez ---
 birlesik_df_bara_hucre = gpd.sjoin(bara_df, hucre_df, how="left", predicate="within")
