@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>graph.py Teknik Dokümantasyon</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #607089;
+      --line: #dbe3ef;
+      --accent: #176b87;
+      --accent-2: #2f8f6b;
+      --warn: #a65f00;
+      --danger: #a83737;
+      --code: #eef3f8;
+      --shadow: 0 10px 30px rgba(23, 32, 51, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f3d55, #176b87 58%, #2f8f6b);
+      color: #fff;
+      padding: 44px 28px 34px;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 42px 0 16px;
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    h3 {
+      margin: 26px 0 12px;
+      font-size: 20px;
+    }
+
+    p { margin: 0 0 14px; }
+    a { color: var(--accent); }
+
+    code, .code {
+      background: var(--code);
+      border: 1px solid #d6e0ea;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.94em;
+    }
+
+    main { padding: 28px 0 56px; }
+
+    nav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      box-shadow: 0 4px 16px rgba(23, 32, 51, 0.05);
+    }
+
+    nav .wrap {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      overflow-x: auto;
+      padding: 12px 0;
+    }
+
+    nav a {
+      white-space: nowrap;
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .lead {
+      max-width: 900px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 18px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .metric {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .diagram {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    svg {
+      display: block;
+      min-width: 820px;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .node { fill: #ffffff; stroke: #176b87; stroke-width: 2; }
+    .node-alt { fill: #f0faf5; stroke: #2f8f6b; stroke-width: 2; }
+    .node-warn { fill: #fff8ec; stroke: #c27b18; stroke-width: 2; }
+    .edge { stroke: #607089; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    .small { font-size: 12px; fill: #607089; }
+    .label { font-size: 14px; fill: #172033; font-weight: 600; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      display: table;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #edf4fa;
+      color: #223047;
+      font-weight: 700;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .table-scroll {
+      overflow-x: auto;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #e9f5f1;
+      color: #1d6c52;
+      border: 1px solid #cce7dc;
+    }
+
+    .tag.warn {
+      background: #fff4de;
+      color: #8a5700;
+      border-color: #f0d295;
+    }
+
+    .tag.legacy {
+      background: #eef1f7;
+      color: #526173;
+      border-color: #d9e0ec;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #edf8fb;
+      padding: 13px 14px;
+      border-radius: 6px;
+      margin: 14px 0;
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+      background: #fff7e8;
+    }
+
+    .two-col {
+      columns: 2;
+      column-gap: 28px;
+    }
+
+    ul, ol { padding-left: 22px; }
+    li { margin-bottom: 7px; }
+
+    @media (max-width: 860px) {
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .two-col { columns: 1; }
+      table { min-width: 760px; }
+      header { padding: 34px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>graph.py Teknik Dokümantasyon</h1>
+      <p class="lead">
+        GIS tabanlı elektrik şebekesi verilerinden NetworkX grafı kuran, hücre/ayırıcı başlangıcından downstream trace çıkaran ve trace sonuçlarını Excel'e yazan ana kodun sıfırdan anlaşılabilir açıklaması.
+      </p>
+      <div class="meta">
+        <span class="pill">Ana dosya: graph.py</span>
+        <span class="pill">Girdi: look-ups Excel sözlükleri</span>
+        <span class="pill">Çıktı: trace Excel dosyaları</span>
+        <span class="pill">Test: regression_test_graph.py</span>
+      </div>
+    </div>
+  </header>
+
+  <nav>
+    <div class="wrap">
+      <a href="#ozet">Özet</a>
+      <a href="#mimari">Mimari</a>
+      <a href="#veri">Veri Tipleri</a>
+      <a href="#akis">Çağrı Sırası</a>
+      <a href="#fonksiyonlar">Fonksiyonlar</a>
+      <a href="#kararlar">Karar Mantığı</a>
+      <a href="#cikti">Çıktılar</a>
+      <a href="#test">Test</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section id="ozet">
+      <h2>1. Kısa Özet</h2>
+      <div class="grid">
+        <article class="card span-4">
+          <div class="metric">3</div>
+          <strong>Ana aşama</strong>
+          <p class="muted">Lookup yükleme, graph oluşturma, downstream trace.</p>
+        </article>
+        <article class="card span-4">
+          <div class="metric">5</div>
+          <strong>Trace çıktı kolonu</strong>
+          <p class="muted"><code>from_ayirici</code>, <code>to_ayirici</code>, <code>length</code>, <code>enh_ids</code>, <code>anahtar_durumu</code>.</p>
+        </article>
+        <article class="card span-4">
+          <div class="metric">1.38x</div>
+          <strong>Ölçülen hızlanma</strong>
+          <p class="muted">Yeni hızlı path işleme bloğu, test edilen senaryoda eski iki fonksiyonlu bloğa göre yaklaşık 1.38 kat hızlıdır.</p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <strong>Bu kodun ana işi:</strong> Bir başlangıç hücresi için uygun ayırıcıları bulur, GIS ilişki tablolarından oluşturulmuş graph üzerinde downstream yolları gezer, alt merkez veya sonlanan hat bağlantılarını bulur ve trace sonucunu Excel'e aktarır.
+      </div>
+    </section>
+
+    <section id="mimari">
+      <h2>2. Mimari ve Dosya İlişkileri</h2>
+      <div class="diagram" aria-label="Mimari diyagramı">
+        <svg viewBox="0 0 980 360" role="img">
+          <defs>
+            <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+              <path d="M2,2 L10,6 L2,10 Z" fill="#607089"></path>
+            </marker>
+          </defs>
+          <rect class="node" x="30" y="42" width="190" height="78" rx="8"></rect>
+          <text class="label" x="62" y="75">GIS shapefile</text>
+          <text class="small" x="58" y="99">HAT, BARA, AYIRICI, HUCRE...</text>
+
+          <rect class="node-alt" x="290" y="42" width="190" height="78" rx="8"></rect>
+          <text class="label" x="326" y="75">couplateV2.py</text>
+          <text class="small" x="313" y="99">spatial join + lookup üretimi</text>
+
+          <rect class="node-alt" x="550" y="42" width="190" height="78" rx="8"></rect>
+          <text class="label" x="586" y="75">look-ups/*.xlsx</text>
+          <text class="small" x="578" y="99">ilişki tabloları ve edge listesi</text>
+
+          <rect class="node" x="290" y="214" width="190" height="78" rx="8"></rect>
+          <text class="label" x="325" y="247">import_dicts.py</text>
+          <text class="small" x="314" y="271">Excel -&gt; dict/DataFrame</text>
+
+          <rect class="node-warn" x="550" y="214" width="190" height="78" rx="8"></rect>
+          <text class="label" x="603" y="247">graph.py</text>
+          <text class="small" x="577" y="271">NetworkX graph + trace</text>
+
+          <rect class="node" x="800" y="214" width="150" height="78" rx="8"></rect>
+          <text class="label" x="838" y="247">Excel çıktı</text>
+          <text class="small" x="821" y="271">trace sonuçları</text>
+
+          <path class="edge" d="M220 81 L290 81"></path>
+          <path class="edge" d="M480 81 L550 81"></path>
+          <path class="edge" d="M645 120 C645 158, 462 172, 405 214"></path>
+          <path class="edge" d="M480 253 L550 253"></path>
+          <path class="edge" d="M740 253 L800 253"></path>
+        </svg>
+      </div>
+
+      <div class="grid">
+        <article class="card span-6">
+          <h3>Üretim tarafı</h3>
+          <p><code>couplateV2.py</code>, GIS katmanlarını okuyup spatial join yapar ve <code>look-ups</code> klasöründeki Excel sözlüklerini üretir. Bu aşama ağır ön işleme tarafıdır.</p>
+        </article>
+        <article class="card span-6">
+          <h3>Trace tarafı</h3>
+          <p><code>graph.py</code>, <code>import_dicts.py</code> üzerinden hazır lookup dosyalarını okur; graph kurar; başlangıç hücresinden downstream trace çıkarır.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="veri">
+      <h2>3. Temel Veri Tipleri ve Sözleşmeler</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Ad</th>
+              <th>Tip</th>
+              <th>Örnek</th>
+              <th>Kullanım Amacı</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>coord</code></td>
+              <td><code>tuple[float, float]</code></td>
+              <td><code>(29.01234567, 41.12345678)</code></td>
+              <td>Graph node'u olarak kullanılan koordinat.</td>
+            </tr>
+            <tr>
+              <td><code>ayirici_id</code>, <code>hucre_id</code>, <code>merkez_id</code></td>
+              <td><code>int</code></td>
+              <td><code>311169</code>, <code>304374</code></td>
+              <td>GIS objelerinin ABB id değerleri.</td>
+            </tr>
+            <tr>
+              <td><code>paths</code></td>
+              <td><code>dict[coord, list[coord]]</code></td>
+              <td><code>{target_coord: [source, ..., target]}</code></td>
+              <td><code>nx.single_source_shortest_path</code> çıktısı.</td>
+            </tr>
+            <tr>
+              <td><code>path_ids</code></td>
+              <td><code>list[int]</code></td>
+              <td><code>[13398981, 13398982]</code></td>
+              <td>Path üzerindeki edge id'leri. Yeni ana akışta string değil liste olarak taşınır.</td>
+            </tr>
+            <tr>
+              <td><code>hat_edge_ids</code></td>
+              <td><code>set[int]</code></td>
+              <td><code>{13398981, ...}</code></td>
+              <td>HAT tipindeki edge id'leri. Kablo içeriyor mu kontrolü için kullanılır.</td>
+            </tr>
+            <tr>
+              <td><code>buffer_df</code></td>
+              <td><code>pandas.DataFrame</code></td>
+              <td><code>source_coord, target_coord, path_ids...</code></td>
+              <td>Seçilen trace adaylarını <code>prepare_connection</code> metoduna taşır.</td>
+            </tr>
+            <tr>
+              <td><code>tablo</code></td>
+              <td><code>list[tuple]</code></td>
+              <td><code>(from, to, length, enh_ids, anahtar)</code></td>
+              <td>Excel'e yazılacak trace sonuç satırları.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="akis">
+      <h2>4. Ana Çağrı Sırası</h2>
+      <div class="diagram" aria-label="Ana çağrı akışı diyagramı">
+        <svg viewBox="0 0 980 430" role="img">
+          <defs>
+            <marker id="arrow2" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+              <path d="M2,2 L10,6 L2,10 Z" fill="#607089"></path>
+            </marker>
+          </defs>
+          <style>.edge2{stroke:#607089;stroke-width:2;fill:none;marker-end:url(#arrow2)}</style>
+
+          <rect class="node" x="42" y="40" width="170" height="60" rx="8"></rect>
+          <text class="label" x="84" y="68">Graph()</text>
+          <text class="small" x="75" y="88">nesne oluştur</text>
+
+          <rect class="node" x="270" y="40" width="170" height="60" rx="8"></rect>
+          <text class="label" x="315" y="68">init_dicts()</text>
+          <text class="small" x="293" y="88">lookup verilerini yükle</text>
+
+          <rect class="node" x="498" y="40" width="170" height="60" rx="8"></rect>
+          <text class="label" x="541" y="68">make_graph()</text>
+          <text class="small" x="525" y="88">NetworkX graph kur</text>
+
+          <rect class="node-alt" x="726" y="40" width="190" height="60" rx="8"></rect>
+          <text class="label" x="768" y="68">search_and_create_tree()</text>
+          <text class="small" x="775" y="88">trace ana döngüsü</text>
+
+          <rect class="node" x="86" y="185" width="190" height="60" rx="8"></rect>
+          <text class="label" x="137" y="213">preperation()</text>
+          <text class="small" x="112" y="233">başlangıç ayırıcılarını bul</text>
+
+          <rect class="node" x="340" y="185" width="190" height="60" rx="8"></rect>
+          <text class="label" x="389" y="213">pre_process()</text>
+          <text class="small" x="373" y="233">shortest paths üret</text>
+
+          <rect class="node-alt" x="594" y="185" width="190" height="60" rx="8"></rect>
+          <text class="label" x="632" y="213">process_paths_fast()</text>
+          <text class="small" x="626" y="233">adayları filtrele</text>
+
+          <rect class="node-alt" x="338" y="322" width="194" height="60" rx="8"></rect>
+          <text class="label" x="378" y="350">prepare_connection()</text>
+          <text class="small" x="361" y="370">sonuç + yeni queue üret</text>
+
+          <rect class="node" x="596" y="322" width="190" height="60" rx="8"></rect>
+          <text class="label" x="638" y="350">Excel yazımı</text>
+          <text class="small" x="626" y="370">connection ve debug dosyaları</text>
+
+          <path class="edge2" d="M212 70 L270 70"></path>
+          <path class="edge2" d="M440 70 L498 70"></path>
+          <path class="edge2" d="M668 70 L726 70"></path>
+          <path class="edge2" d="M821 100 C821 142, 260 142, 181 185"></path>
+          <path class="edge2" d="M276 215 L340 215"></path>
+          <path class="edge2" d="M530 215 L594 215"></path>
+          <path class="edge2" d="M689 245 C689 300, 505 298, 435 322"></path>
+          <path class="edge2" d="M532 352 L596 352"></path>
+          <path class="edge2" d="M338 352 C230 352, 230 245, 340 215"></path>
+        </svg>
+      </div>
+
+      <ol>
+        <li><code>Graph()</code> nesnesi oluşturulur ve sınıf alanları boş/varsayılan değerlerle hazırlanır.</li>
+        <li><code>init_dicts()</code>, <code>look-ups</code> Excel dosyalarını <code>import_dicts.load_and_unpack_all()</code> ile okur.</li>
+        <li><code>make_graph()</code>, <code>point_df</code> ve <code>edge_df</code> üzerinden NetworkX <code>Graph</code> oluşturur.</li>
+        <li><code>search_and_create_tree(start_hucre_id)</code>, başlangıç hücresini trace eder.</li>
+        <li><code>preperation()</code>, başlangıç hücresinde trace edilecek ayırıcı koordinatlarını hazırlar.</li>
+        <li><code>pre_process()</code>, kaynak ayırıcıdan belirli cutoff ile tüm kısa yolları üretir.</li>
+        <li><code>process_paths_fast()</code>, downstream ve kablo koşullarını sağlayan en uygun adayı seçer.</li>
+        <li><code>prepare_connection()</code>, trace sonucunu tabloya ekler ve alt merkezin içinden devam edilecek yeni queue elemanlarını üretir.</li>
+        <li>Döngü bitince sonuçlar Excel'e yazılır.</li>
+      </ol>
+    </section>
+
+    <section id="fonksiyonlar">
+      <h2>5. Fonksiyon Envanteri</h2>
+
+      <h3>5.1 Modül Seviyesi Fonksiyonlar</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Fonksiyon</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Görev</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>deduplicate_dict_list(dict_list)</code></td>
+              <td><code>list[dict]</code></td>
+              <td><code>list[dict]</code></td>
+              <td>Liste içindeki aynı dict kayıtlarını kaldırır. Liste value'larını tuple'a çevirerek hashlenebilir anahtar üretir.</td>
+            </tr>
+            <tr>
+              <td><code>get_line_id(edge_df, node_1, node_2)</code></td>
+              <td><code>DataFrame</code>, node, node</td>
+              <td>Yok</td>
+              <td><span class="tag warn">boş</span> Şu anda <code>pass</code>. Kullanılmıyor.</td>
+            </tr>
+            <tr>
+              <td><code>is_cable_include(hat_edge_ids, path_ids)</code></td>
+              <td><code>set[int]</code>, <code>list[int] | None</code></td>
+              <td><code>bool</code></td>
+              <td>Path içinde HAT/kablo edge id var mı kontrol eder.</td>
+            </tr>
+            <tr>
+              <td><code>get_path_ids(start_end_2_edge_id, path)</code></td>
+              <td><code>dict[tuple[coord, coord], int]</code>, <code>list[coord]</code></td>
+              <td><code>list[int] | None</code></td>
+              <td>Koordinat path'ini edge id listesine çevirir. Edge eşleşmesi yoksa güvenli şekilde <code>None</code> döner.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.2 Graph Sınıfı: Kurulum ve Ana Akış</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Metot</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Ne İşe Yarar?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>__init__()</code></td>
+              <td>Yok</td>
+              <td><code>Graph</code> instance</td>
+              <td>Graph, lookup dict, hata logu, buffer ve sabit alanları hazırlar.</td>
+            </tr>
+            <tr>
+              <td><code>init_dicts()</code></td>
+              <td>Yok</td>
+              <td>Instance alanlarını doldurur</td>
+              <td>Tüm lookup sözlüklerini ve DataFrame'leri yükler: ayırıcı, hücre, merkez, edge, point, mesafe, bara bilgileri.</td>
+            </tr>
+            <tr>
+              <td><code>make_graph()</code></td>
+              <td>Yok; <code>point_df</code>, <code>edge_df</code>, <code>ayirici_id_2_coord</code> kullanır</td>
+              <td><code>self.graph: nx.Graph</code></td>
+              <td>NetworkX graph oluşturur; node olarak koordinatlar, edge olarak GIS hat/bara/bağlantı segmentleri kullanılır.</td>
+            </tr>
+            <tr>
+              <td><code>search_and_create_tree(start_hucre_id)</code></td>
+              <td><code>int</code> hücre id</td>
+              <td>Excel dosyaları</td>
+              <td>Ana trace döngüsüdür. Queue ile downstream gezer, sonuçları <code>*-connection_and_length.xlsx</code> ve <code>*-just_between_bays.xlsx</code> dosyalarına yazar.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.3 Başlangıç ve Path Adayı Hazırlama</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Metot</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Ne İşe Yarar?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>preperation(hucre_id)</code></td>
+              <td><code>int</code></td>
+              <td><code>list[[coord, ayirici_id, initial_conns]]</code></td>
+              <td>Hücrenin üst/alt ayırıcılarını bulur, başlangıç trace koordinatını seçer, ilk bağlantı satırlarını hazırlar.</td>
+            </tr>
+            <tr>
+              <td><code>ayirici_list_finder(hucre_id)</code></td>
+              <td><code>int</code></td>
+              <td><code>(list[int] | int | None, int | None, int)</code></td>
+              <td>Merkez tek bara mı 2.5 bara mı kontrol eder; buna göre top ve bottom ayırıcı id'lerini seçer.</td>
+            </tr>
+            <tr>
+              <td><code>baslangic_setter(path, source_ayirici_id, bottom_ayirici_id, tablo, tek_bara_mi)</code></td>
+              <td><code>list[coord]</code>, <code>int</code>, <code>int</code>, <code>list</code>, <code>int</code></td>
+              <td><code>coord | None</code></td>
+              <td>Trace'in hangi ayırıcı koordinatından başlayacağını belirler; gerekiyorsa ilk ayırıcı bağlantısını tabloya ekler.</td>
+            </tr>
+            <tr>
+              <td><code>pre_process(source_node)</code></td>
+              <td><code>coord</code></td>
+              <td><code>(paths, baglanti_start, baglanti_end)</code></td>
+              <td>Source node graph'ta mı ve bağlantı koordinatı var mı kontrol eder; <code>nx.single_source_shortest_path</code> ile aday yolları üretir.</td>
+            </tr>
+            <tr>
+              <td><code>process_paths_fast(source_node_coord, paths, baglanti_start, baglanti_end)</code></td>
+              <td><code>coord</code>, <code>dict</code>, <code>coord</code>, <code>coord</code></td>
+              <td><code>(DataFrame | None, "alt_merkez" | "sonlanan_hat" | "none")</code></td>
+              <td>Downstream koşulu, minimum path uzunluğu, merkez farkı ve kablo içerme kontrollerini tek geçişte yapar. Alt merkez varsa en kısa, sonlanan hat varsa en uzun path'i seçer.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.4 Connection Hazırlama ve Merkez İçi Trace</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Metot</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Ne İşe Yarar?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>prepare_connection(...)</code></td>
+              <td><code>DataFrame</code>, filter tipi, sonuç listeleri</td>
+              <td><code>list[coord] | None</code></td>
+              <td>Seçilen trace adayını sonuç tablosuna ekler; alt merkez varsa merkez içi trace yapıp queue'ya yeni koordinatlar verir.</td>
+            </tr>
+            <tr>
+              <td><code>prepare_connection_context(row)</code></td>
+              <td><code>pandas.Series</code></td>
+              <td><code>dict</code></td>
+              <td>DataFrame satırından anlamlı context üretir: giriş ayırıcı, giriş hücre, mesafe, path id, anahtar durumu.</td>
+            </tr>
+            <tr>
+              <td><code>append_trace_result(tablo, just_between_bays, context)</code></td>
+              <td><code>list</code>, <code>list</code>, <code>dict</code></td>
+              <td>Yan etki</td>
+              <td>Aynı trace satırını ana sonuç listesine ve debug/ara bağlantı listesine ekler.</td>
+            </tr>
+            <tr>
+              <td><code>get_alt_merkez_queue_items(context, tablo)</code></td>
+              <td><code>dict</code>, <code>list</code></td>
+              <td><code>list[coord]</code></td>
+              <td>Alt merkez root değilse, merkezin bara tipine göre 1 bara veya 2.5 bara merkez içi trace fonksiyonunu çağırır.</td>
+            </tr>
+            <tr>
+              <td><code>trace_merkez_ici_1_bara(giris_ayirici, giris_hucre, giris_merkez, tablo)</code></td>
+              <td><code>int</code>, <code>int</code>, <code>int</code>, <code>list</code></td>
+              <td><code>list[coord]</code></td>
+              <td>Tek bara merkezde giriş hücresinden çıkış hücrelerine giden iç bağlantıları çıkarır ve devam queue koordinatlarını döndürür.</td>
+            </tr>
+            <tr>
+              <td><code>ayirici_finder_in_path(...)</code></td>
+              <td>Kaynak ayırıcı, çıkış top/bottom ayırıcı, merkez, tablo</td>
+              <td><code>int | None</code></td>
+              <td>Merkez içi path'te ayırıcı id sırasını çıkarır, tabloya ara ayırıcı bağlantılarını ekler, queue için çıkış ayırıcısını döndürür.</td>
+            </tr>
+            <tr>
+              <td><code>trace_merkez_ici_2_5_bara(giris_hucresi, tablo, merkeze_giris_ayirici)</code></td>
+              <td><code>int</code>, <code>list</code>, <code>int</code></td>
+              <td><code>list[coord]</code></td>
+              <td>2.5 bara merkezlerde doğrudan aynı bara veya bağlama hücresi üzerinden çıkış hücrelerini trace eder.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.5 Yardımcı Fonksiyonlar, Legacy ve Export</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Metot</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Not</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>get_exit_bay_list(merkez, giris_hucresi)</code></td><td><code>int</code>, <code>int</code></td><td><code>list[int]</code></td><td>Merkezdeki çıkış hücrelerini döndürür.</td></tr>
+            <tr><td><code>get_bara_and_ayirici(bara_no_1, hucre_id)</code></td><td>bara no, <code>int</code></td><td><code>(bara_no, ayirici_id) | (None, None)</code></td><td>Hücrede aynı bara no ile eşleşen ayırıcıyı bulur.</td></tr>
+            <tr><td><code>get_baglama_bays(merkez)</code></td><td><code>int</code></td><td><code>list[int]</code></td><td>Bağlama/kuplaj hücrelerini döndürür.</td></tr>
+            <tr><td><code>get_cikis_baglama_ayirici(bara_no, cikis_hucre)</code></td><td>bara no, <code>int</code></td><td><code>int | None</code></td><td>Çıkış hücresinde bara no ile eşleşen top ayırıcıyı bulur.</td></tr>
+            <tr><td><code>ensure_list(val)</code></td><td><code>Any</code></td><td><code>list</code></td><td><code>None</code> değerini boş listeye, tek değeri tek elemanlı listeye çevirir.</td></tr>
+            <tr><td><code>bara_no_match(bn1, bn2)</code></td><td>bara no, bara no</td><td><code>bool</code></td><td>Normalize edilmiş bara no kümeleri kesişiyor mu kontrol eder.</td></tr>
+            <tr><td><code>shortest_path_safe(ayirici_id_1, ayirici_id_2)</code></td><td><code>int</code>, <code>int</code></td><td><code>list[coord] | None</code></td><td>Ayırıcı id'lerini koordinata çevirip güvenli NetworkX shortest path çağırır.</td></tr>
+            <tr><td><code>normalize_bara_no(bn)</code></td><td><code>Any</code></td><td><code>set[str]</code></td><td>Bara no karşılaştırması için set üretir.</td></tr>
+            <tr><td><code>get_mesafe(path_ids)</code></td><td><code>list[int] | str | None</code></td><td><code>int | float</code></td><td>Sadece HAT edge id'lerinin uzunluklarını toplar.</td></tr>
+            <tr><td><code>create_temp_bufferV2()</code>, <code>filter_and_clear_bufferV2()</code></td><td>Path adayları</td><td><code>DataFrame</code></td><td><span class="tag legacy">legacy</span> Yeni ana akışta <code>process_paths_fast</code> kullanılır; eski mantık referans için durur.</td></tr>
+            <tr><td><code>prepare_connection_legacy()</code></td><td><code>DataFrame</code>, filter tipi, listeler</td><td><code>list[coord] | None</code></td><td><span class="tag legacy">legacy</span> Yeni parçalı <code>prepare_connection</code> aktif kullanılır.</td></tr>
+            <tr><td><code>export_nodes_to_excel/text/csv()</code></td><td><code>filename: str</code></td><td><code>bool</code></td><td>Graph node listesini farklı formatlarda dışarı aktarır.</td></tr>
+            <tr><td><code>get_ayirici_ids_in_path()</code>, <code>create_connection_node_list()</code></td><td>Path verisi</td><td>Kısmi/boş</td><td><span class="tag warn">tamamlanmamış</span> Aktif ana trace akışında kullanılmıyor.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="kararlar">
+      <h2>6. Trace Karar Mantığı</h2>
+      <div class="grid">
+        <article class="card span-6">
+          <h3><code>process_paths_fast</code> filtreleri</h3>
+          <ol>
+            <li>Path, bağlantı başlangıcı veya bitişinden geçmeli.</li>
+            <li>Path uzunluğu en az 4 node olmalı.</li>
+            <li>Target merkez, source merkezden farklı olmalı.</li>
+            <li>Path edge id'leri güvenli şekilde bulunmalı.</li>
+            <li>Path içinde en az bir HAT/kablo edge id olmalı.</li>
+            <li>Target ayırıcı koordinatıysa <code>alt_merkez</code>, değilse <code>sonlanan_hat</code> adayı olur.</li>
+            <li>Alt merkez adayı varsa öncelik ondadır; en kısa ham path seçilir.</li>
+            <li>Alt merkez yoksa sonlanan hat adaylarından en uzun ham path seçilir.</li>
+          </ol>
+        </article>
+        <article class="card span-6">
+          <h3><code>prepare_connection</code> kararları</h3>
+          <ol>
+            <li>Satırdan context çıkarılır.</li>
+            <li>Sonuç satırı hem ana tabloya hem debug tablosuna eklenir.</li>
+            <li><code>sonlanan_hat</code> ise queue genişletilmez.</li>
+            <li><code>alt_merkez</code> root merkez ise queue genişletilmez.</li>
+            <li>Alt merkez tek bara ise <code>trace_merkez_ici_1_bara</code> çağrılır.</li>
+            <li>Alt merkez 2.5 bara ise <code>trace_merkez_ici_2_5_bara</code> çağrılır.</li>
+          </ol>
+        </article>
+      </div>
+      <div class="callout warn">
+        <strong>Önemli:</strong> Yeni ana akışta <code>path_ids</code> liste olarak tutulur. Eski legacy fonksiyonlarda string liste davranışı korunmuştur. <code>get_mesafe</code> iki tipi de kabul eder.
+      </div>
+    </section>
+
+    <section id="cikti">
+      <h2>7. Üretilen Çıktılar</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Dosya</th>
+              <th>Ne Zaman Üretilir?</th>
+              <th>Kolonlar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>{ayirici_id}-connection_and_length.xlsx</code></td>
+              <td><code>connection_and_length</code> boş değilse</td>
+              <td><code>from_ayirici</code>, <code>to_ayirici</code>, <code>length</code>, <code>enh_ids</code>, <code>anahtar_durumu</code></td>
+            </tr>
+            <tr>
+              <td><code>{ayirici_id}-just_between_bays.xlsx</code></td>
+              <td><code>just_between_bays</code> boş değilse</td>
+              <td>Aynı kolonlar; debug/ara bağlantı görünümü.</td>
+            </tr>
+            <tr>
+              <td><code>hata_loglari.xlsx</code></td>
+              <td><code>__main__</code> çalışmasında hata logu varsa</td>
+              <td><code>source_node</code>, <code>target_node</code>, <code>merkez</code>, <code>bilgi</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="test">
+      <h2>8. Regression Test ve Doğrulama</h2>
+      <p>
+        Eklenen <code>regression_test_graph.py</code> dosyası, güncel kodun ürettiği trace Excel dosyalarını eski baseline çıktılarla tablo bazında karşılaştırır.
+      </p>
+      <div class="grid">
+        <article class="card span-6">
+          <h3>Çalıştırma</h3>
+          <p><code>cd pythons</code></p>
+          <p><code>python regression_test_graph.py</code></p>
+          <p class="muted">Varsayılan hücre: <code>304374</code>. Beklenen klasör: <code>verification/baseline</code>. Güncel çıktı: <code>verification/regression_current</code>.</p>
+        </article>
+        <article class="card span-6">
+          <h3>Başarılı Sonuç</h3>
+          <p><code>Graph regression status: MATCH</code></p>
+          <p class="muted">Bu mesaj, tüm beklenen Excel dosyalarının satır/kolon/veri olarak aynı üretildiğini gösterir.</p>
+        </article>
+      </div>
+
+      <h3>Son Çalıştırılan Test Sonucu</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Kontrol</th>
+              <th>Sonuç</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>python -m py_compile graph.py regression_test_graph.py</code></td><td><span class="tag">başarılı</span></td></tr>
+            <tr><td><code>python regression_test_graph.py</code></td><td><span class="tag">Graph regression status: MATCH</span></td></tr>
+            <tr><td>Karşılaştırılan trace dosyaları</td><td>6 Excel dosyası: 311169, 311170, 312868 connection/debug çiftleri</td></tr>
+            <tr><td>Hız ölçümü</td><td>Eski path bloğu: 0.5106s, yeni path bloğu: 0.3698s, yaklaşık 1.38x hızlanma</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
